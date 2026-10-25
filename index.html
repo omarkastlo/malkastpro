@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mal Kast Rewards - منصة الأرباح والخدمات المتكاملة</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0b0f19',
+                        cardbg: '#151c2c',
+                        bordercolor: '#26334d',
+                        primary: '#0284c7',
+                        accent: '#38bdf8'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        * { font-family: 'Tajawal', sans-serif; box-sizing: border-box; }
+        body { background-color: #0b0f19; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0b0f19; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #26334d; border-radius: 4px; }
+        
+        .modal-bounce {
+            animation: modalFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-darkbg text-gray-100 flex flex-col min-h-screen custom-scrollbar">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-cardbg border-b border-bordercolor sticky top-0 z-40 px-4 py-3 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center font-black text-white text-xl shadow-lg">
+                    MK
+                </div>
+                <div>
+                    <h1 class="text-lg font-black tracking-wide text-white flex items-center gap-2">
+                        Mal Kast Rewards
+                        <span id="role-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-md">أدمن</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">منصة الأرباح والدعاية الاحترافية</p>
+                </div>
+            </div>
+
+            <!-- Header Balance, Level & Notifications -->
+            <div id="header-user-status" class="hidden items-center gap-2 sm:gap-3">
+                <div class="flex items-center gap-1.5 bg-gradient-to-r from-purple-900/50 to-indigo-900/50 border border-purple-500/40 px-3 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-trophy text-purple-400 text-sm"></i>
+                    <span id="header-user-level" class="font-black text-purple-300 text-xs">Level 0</span>
+                </div>
+
+                <div class="flex items-center gap-2 bg-darkbg border border-bordercolor px-3 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-coins text-yellow-400 text-base"></i>
+                    <span id="user-tokens-display" class="font-black text-sky-400 text-sm">0</span>
+                    <span class="text-xs text-gray-400 hidden sm:inline">توكن</span>
+                </div>
+
+                <button onclick="openNotificationsModal()" class="relative p-2.5 rounded-xl bg-darkbg border border-bordercolor text-gray-300 hover:text-sky-400 transition">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                    <span id="notif-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-cardbg hidden"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Application Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-24">
+
+        <!-- AUTH SCREEN -->
+        <section id="auth-screen" class="max-w-md mx-auto my-8 bg-cardbg border border-bordercolor rounded-2xl p-6 shadow-2xl">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-black text-sky-400 mb-1">تسجيل الدخول / حساب جديد</h2>
+                <p class="text-xs text-gray-400">مرحباً بك في منصة Mal Kast. اختر نوع العملية للمتابعة</p>
+            </div>
+
+            <div class="flex bg-darkbg p-1 rounded-xl mb-6 border border-bordercolor">
+                <button id="tab-btn-register" class="flex-1 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition active-auth-tab bg-sky-500 text-white" onclick="switchAuthTab('register')">حساب جديد</button>
+                <button id="tab-btn-login" class="flex-1 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+            </div>
+
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="event.preventDefault(); handleRegister();" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1">الاسم الكامل</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute right-3 top-3 text-gray-500 text-sm"></i>
+                        <input type="text" id="reg-name" required placeholder="أدخل اسمك..." class="w-full bg-darkbg border border-bordercolor rounded-xl pr-9 pl-3 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1">البريد الإلكتروني</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute right-3 top-3 text-gray-500 text-sm"></i>
+                        <input type="email" id="reg-email" required placeholder="example@mail.com" class="w-full bg-darkbg border border-bordercolor rounded-xl pr-9 pl-3 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1">كلمة المرور</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute right-3 top-3 text-gray-500 text-sm"></i>
+                        <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-darkbg border border-bordercolor rounded-xl pr-9 pl-3 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-3 rounded-xl transition text-sm shadow-lg shadow-sky-500/20">إنشاء حساب جديد</button>
+            </form>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="event.preventDefault(); handleLogin();" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1">البريد الإلكتروني</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute right-3 top-3 text-gray-500 text-sm"></i>
+                        <input type="email" id="log-email" required placeholder="example@mail.com" class="w-full bg-darkbg border border-bordercolor rounded-xl pr-9 pl-3 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1">كلمة المرور</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute right-3 top-3 text-gray-500 text-sm"></i>
+                        <input type="password" id="log-password" required placeholder="••••••••" class="w-full bg-darkbg border border-bordercolor rounded-xl pr-9 pl-3 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-3 rounded-xl transition text-sm shadow-lg shadow-sky-500/20">تسجيل الدخول</button>
+            </form>
+        </section>
+
+        <!-- MAIN APP SCREENS -->
+        <div id="app-content" class="hidden">
+
+            <!-- TAB 1: TASKS & DASHBOARD -->
+            <section id="tab-tasks" class="space-y-6">
+                <!-- Banner Info -->
+                <div class="bg-gradient-to-r from-sky-950 to-cardbg border border-sky-800/40 rounded-2xl p-4 flex items-center gap-3">
+                    <i class="fa-solid fa-circle-info text-sky-400 text-2xl"></i>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">دليل مركز المهام والجوائز</h4>
+                        <p class="text-xs text-gray-300">قم بتنفيذ المهام اليومية، كلما جمعت توكنات أكثر كلما ارتقيت في المستوى (Level)، ارتفاع المستويات يتطلب مجهوداً وتجميعاً مستمراً!</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Lucky Wheel & Daily Bonus -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fa-solid fa-dharmachakra text-yellow-400 text-xl"></i>
+                                <h3 class="font-bold text-white text-base">عجلة الحظ اليومية</h3>
+                            </div>
+                            <p class="text-xs text-gray-400 mb-4">يمكنك لف عجلة الحظ مرة واحدة كل 24 ساعة للحصول على توكنات مجانية.</p>
+                        </div>
+                        <div class="space-y-3">
+                            <button id="spin-wheel-btn" onclick="spinLuckyWheel()" class="w-full bg-yellow-500 hover:bg-yellow-600 font-extrabold text-darkbg py-2.5 rounded-xl text-xs transition">تدوير العجلة الآن 🎡</button>
+                            <p id="wheel-timer-msg" class="text-[11px] text-center text-yellow-400 hidden font-bold"></p>
+                        </div>
+                    </div>
+
+                    <!-- Daily Bonus Card -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fa-solid fa-gift text-sky-400 text-xl"></i>
+                                <h3 class="font-bold text-white text-base">المكافأة اليومية</h3>
+                            </div>
+                            <p class="text-xs text-gray-400 mb-4">احصل على 25 توكن مجاناً بضغطة زر واحدة يومياً عند تسجيل حضورك.</p>
+                        </div>
+                        <button onclick="claimDailyBonus()" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-2.5 rounded-xl text-xs transition">استلام المكافأة (25 توكن)</button>
+                    </div>
+
+                    <!-- Live Activity -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-chart-line text-emerald-400 text-xl"></i>
+                            <h3 class="font-bold text-white text-base">نشاطاتك الأخيرة</h3>
+                        </div>
+                        <div id="live-user-activity-feed" class="space-y-2 max-h-36 overflow-y-auto custom-scrollbar pr-1">
+                            <p class="text-xs text-gray-500 text-center py-4">لا توجد نشاطات مسجلة بعد.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Tasks List -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                    <h3 class="font-black text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-sky-400"></i>
+                        المهام المتاحة حالياً
+                    </h3>
+                    <div id="tasks-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Tasks rendered dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: REFERRAL & COUPONS -->
+            <section id="tab-referral" class="space-y-6 hidden">
+                <div class="bg-gradient-to-r from-sky-950 to-cardbg border border-sky-800/40 rounded-2xl p-4 flex items-center gap-3">
+                    <i class="fa-solid fa-ticket text-sky-400 text-2xl"></i>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">نظام الإحالة والقسائم</h4>
+                        <p class="text-xs text-gray-300">شارك رابط الإحالة الخاص بك للحصول على مكافآت، أو ادخل كود القسيمة الترويجية المقدمة من المطور.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Redeem Coupon -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-key text-yellow-400"></i>
+                            تفعيل قسيمة المطور
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-4">أدخل كود القسيمة للحصول على التوكنز الفورية.</p>
+                        <div class="space-y-3">
+                            <input type="text" id="coupon-code-input" placeholder="مثال: OMAR2026" class="w-full bg-darkbg border border-bordercolor rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 uppercase">
+                            <button onclick="redeemCouponCode()" class="w-full bg-yellow-500 hover:bg-yellow-600 font-extrabold text-darkbg py-2.5 rounded-xl text-xs transition">تفعيل القسيمة 🎁</button>
+                        </div>
+                    </div>
+
+                    <!-- Referral Link -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-share-nodes text-sky-400"></i>
+                            رابط الإحالة الخاص بك
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-4">انسخ رابطك وشاركه مع أصدقائك للحصول على مكافآت دائمة.</p>
+                        <div class="space-y-3">
+                            <div id="ref-link-box" class="bg-darkbg border border-bordercolor p-3 rounded-xl text-xs text-sky-400 font-mono break-all text-center">
+                                https://malkast.app/?ref=user
+                            </div>
+                            <button onclick="copyReferralLink()" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-2.5 rounded-xl text-xs transition">نسخ رابط الإحالة 📋</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: ADVERTISER SECTION -->
+            <section id="tab-advertiser" class="space-y-6 hidden">
+                <div class="bg-gradient-to-r from-sky-950 to-cardbg border border-sky-800/40 rounded-2xl p-4 flex items-center gap-3">
+                    <i class="fa-solid fa-bullhorn text-sky-400 text-2xl"></i>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">قسم المعلنين والدعاية والخدمات</h4>
+                        <p class="text-xs text-gray-300">أضف حملتك الإعلانية واجعل آلاف المستخدمين يزورون موقعك أو يتفاعلون معك. تزيد التوكنات تلقائياً مع حجم الباقة.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Developer Transfer Info -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-emerald-400"></i>
+                            رقم التحويل المباشر للمطور
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-3">قم بتحويل مبلغ الحملة إلى الرقم التالي عبر كاش ثم املأ استمارة الإعلان:</p>
+                        <div class="bg-darkbg border border-dashed border-emerald-500/50 rounded-xl p-3 text-center text-lg font-black text-emerald-400 tracking-wider">
+                            01070490816
+                        </div>
+                    </div>
+
+                    <!-- Advertising Offers Table -->
+                    <div class="md:col-span-2 bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-table text-yellow-400"></i>
+                            جدول الباقات والعروض المتاحة
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-center border-collapse">
+                                <thead>
+                                    <tr class="bg-darkbg text-sky-400 border-b border-bordercolor">
+                                        <th class="p-2.5">المبلغ</th>
+                                        <th class="p-2.5">نوع المهمة</th>
+                                        <th class="p-2.5">مكافأة الشخص</th>
+                                        <th class="p-2.5">الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-bordercolor">
+                                    <tr><td class="p-2 text-white font-bold">200 ج.م</td><td class="p-2 text-gray-300">زيارة / تفاعل</td><td class="p-2 text-yellow-400 font-bold">50 / 20 توكن</td><td class="p-2 text-emerald-400">نشط</td></tr>
+                                    <tr><td class="p-2 text-white font-bold">300 ج.م</td><td class="p-2 text-gray-300">زيارة / تفاعل</td><td class="p-2 text-yellow-400 font-bold">60 / 30 توكن</td><td class="p-2 text-emerald-400">نشط</td></tr>
+                                    <tr><td class="p-2 text-white font-bold">400 ج.م</td><td class="p-2 text-gray-300">زيارة / تفاعل</td><td class="p-2 text-yellow-400 font-bold">70 / 40 توكن</td><td class="p-2 text-emerald-400">نشط</td></tr>
+                                    <tr><td class="p-2 text-white font-bold">500 ج.م</td><td class="p-2 text-gray-300">زيارة / تفاعل</td><td class="p-2 text-yellow-400 font-bold">80 / 50 توكن</td><td class="p-2 text-emerald-400">نشط</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Campaign Form -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-sky-400"></i>
+                        إرسال حملة إعلانية جديدة
+                    </h3>
+                    <form onsubmit="event.preventDefault(); submitCampaignWithProof();" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">نوع المهمة الإعلانية</label>
+                            <select id="adv-type" onchange="fillPackageDetails()" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                                <option value="زيارة موقع">زيارة موقع (بدءاً من 50 توكن)</option>
+                                <option value="تفاعل / لايك">تفاعل / لايك (بدءاً من 20 توكن)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">اختر الباقة / المبلغ المدفوع</label>
+                            <select id="adv-package-select" onchange="fillPackageDetails()" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                                <option value="200">200 جنيه مصري</option>
+                                <option value="300">300 جنيه مصري</option>
+                                <option value="400">400 جنيه مصري</option>
+                                <option value="500">500 جنيه مصري</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">عنوان الإعلان / المهمة</label>
+                            <input type="text" id="adv-title" required placeholder="مثال: زيارة متجري الإلكتروني" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">رابط الموقع أو الصفحة الإعلانية</label>
+                            <input type="url" id="adv-url" required placeholder="https://example.com" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">المكافأة المحسوبة تلقائياً للشخص</label>
+                            <input type="number" id="adv-reward" readonly class="w-full bg-darkbg/50 border border-bordercolor rounded-xl p-2.5 text-xs text-yellow-400 font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">رقم الهاتف المحول منه (إثبات الدفع)</label>
+                            <input type="text" id="adv-proof-phone" required placeholder="010XXXXXXXX" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-3 rounded-xl transition text-xs">إرسال الحملة لمراجعة المطور 🚀</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- TAB 4: WALLET & WITHDRAWAL -->
+            <section id="tab-wallet" class="space-y-6 hidden">
+                <div class="bg-gradient-to-r from-sky-950 to-cardbg border border-sky-800/40 rounded-2xl p-4 flex items-center gap-3">
+                    <i class="fa-solid fa-wallet text-sky-400 text-2xl"></i>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">محفظتك وسحب الأرباح</h4>
+                        <p class="text-xs text-gray-300">الحد الأدنى للسحب هو 50 جنيه مصري (كل 5000 توكن تعادل 1 جنيه مصري).</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Balance Display -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-6 text-center flex flex-col justify-center items-center">
+                        <p class="text-xs font-bold text-gray-400 mb-2">رصيدك الكلي الحالي بالجنيه</p>
+                        <h2 id="user-egp-display" class="text-3xl font-black text-sky-400 mb-1">0.00 EGP</h2>
+                        <span class="text-xs text-gray-500">جاهز للسحب الفوري عند توفر الحد الأدنى</span>
+                    </div>
+
+                    <!-- Withdrawal Form -->
+                    <div class="md:col-span-2 bg-cardbg border border-bordercolor rounded-2xl p-5 space-y-4">
+                        <h3 class="font-bold text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-transfer text-emerald-400"></i>
+                            طلب سحب جديد
+                        </h3>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-2">اختر طريقة السحب</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button type="button" onclick="selectWalletMethod('فودافون كاش', this)" class="wallet-method-btn active bg-darkbg border-2 border-sky-500 p-3 rounded-xl text-center">
+                                    <i class="fa-solid fa-mobile-screen text-red-500 text-xl mb-1 block"></i>
+                                    <span class="text-xs font-bold">فودافون كاش</span>
+                                </button>
+                                <button type="button" onclick="selectWalletMethod('اتصالات كاش', this)" class="wallet-method-btn bg-darkbg border border-bordercolor p-3 rounded-xl text-center">
+                                    <i class="fa-solid fa-sim-card text-emerald-500 text-xl mb-1 block"></i>
+                                    <span class="text-xs font-bold">اتصالات كاش</span>
+                                </button>
+                                <button type="button" onclick="selectWalletMethod('أورانج كاش', this)" class="wallet-method-btn bg-darkbg border border-bordercolor p-3 rounded-xl text-center">
+                                    <i class="fa-solid fa-wallet text-orange-500 text-xl mb-1 block"></i>
+                                    <span class="text-xs font-bold">أورانج كاش</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">المبلغ المراد سحبه (بالجنيه)</label>
+                                <input type="number" id="withdraw-amount-input" min="50" placeholder="50" oninput="updateWithdrawCounter()" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">رقم الهاتف لاستلام المبلغ</label>
+                                <input type="text" id="withdraw-phone-input" placeholder="010XXXXXXXX" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                            </div>
+                        </div>
+
+                        <div class="bg-darkbg p-3 rounded-xl border border-bordercolor flex justify-between text-xs font-bold">
+                            <span>التوكنات المطلوبة: <b id="counter-tokens-req" class="text-sky-400">0</b></span>
+                            <span>توكناتك الحالية: <b id="counter-user-tokens" class="text-yellow-400">0</b></span>
+                        </div>
+
+                        <button onclick="requestWithdrawal()" class="w-full bg-emerald-500 hover:bg-emerald-600 font-extrabold text-darkbg py-3 rounded-xl transition text-xs">تقديم طلب السحب 💸</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: USER PROFILE & SETTINGS -->
+            <section id="tab-profile" class="space-y-6 hidden">
+                <!-- User Overview Header -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center font-black text-2xl text-white shadow-lg flex-shrink-0">
+                            <i class="fa-solid fa-user text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <h2 id="profile-display-name" class="text-xl font-black text-white">المستخدم</h2>
+                                <span id="profile-level-badge" class="bg-purple-900/60 border border-purple-500/40 text-purple-300 text-xs font-black px-2.5 py-0.5 rounded-full">Level 0</span>
+                            </div>
+                            <p id="profile-display-email" class="text-xs text-gray-400 mt-0.5">user@email.com</p>
+                            <div class="flex flex-wrap items-center gap-2 mt-2">
+                                <span class="bg-sky-500/10 text-sky-400 border border-sky-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                    التوكنات: <b id="profile-tokens-count">0</b> 🪙
+                                </span>
+                                <span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                    إجمالي التجميع: <b id="profile-total-earned">0</b> 🪙
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="logoutUser()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
+                    </button>
+                </div>
+
+                <!-- Level Progress System Box -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-purple-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-layer-group text-purple-400"></i>
+                            تقدم مستوى الحساب الحالي
+                        </span>
+                        <span id="level-progress-text" class="text-gray-400 font-mono">0 / 2,000 توكن</span>
+                    </div>
+                    <div class="w-full bg-darkbg h-3 rounded-full border border-bordercolor overflow-hidden p-0.5">
+                        <div id="level-progress-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[11px] text-gray-400">
+                        ملاحظة: الترقي للمستويات التالية يصبح أكثر صعوبة وتحدياً بشكل مضاعف مع كل مستوى!
+                    </p>
+                </div>
+
+                <!-- Wallet Banner Shortcut -->
+                <div onclick="switchAppTab('wallet')" class="bg-gradient-to-r from-emerald-900 to-teal-900 hover:from-emerald-800 hover:to-teal-800 border border-emerald-500/40 rounded-2xl p-5 cursor-pointer transition flex justify-between items-center shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-emerald-500 text-darkbg rounded-xl flex items-center justify-center font-black text-xl">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-white">محفظتك المالية</h3>
+                            <p class="text-xs text-emerald-200">اضغط هنا للانتقال المباشر لصفحة سحب الأرباح وإدارة الرصيد</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-left text-emerald-300 text-lg"></i>
+                </div>
+
+                <!-- Profile Settings Forms -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-gear text-sky-400"></i>
+                        إعدادات الحساب والبيانات الشخصية
+                    </h3>
+                    <form onsubmit="event.preventDefault(); updateUserSettings();" class="space-y-4 max-w-xl">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">الاسم الكامل</label>
+                            <input type="text" id="setting-name-input" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">البريد الإلكتروني</label>
+                            <input type="email" id="setting-email-input" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">كلمة المرور الجديدة</label>
+                            <input type="password" id="setting-password-input" placeholder="اتركه فارغاً إذا لم ترغب بالتغيير" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                        <button type="submit" class="bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg px-6 py-2.5 rounded-xl transition text-xs">حفظ التغييرات 💾</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- TAB 6: ADMIN & DEVELOPER PANEL -->
+            <section id="tab-admin" class="space-y-6 hidden">
+                <div class="bg-gradient-to-r from-red-950 to-cardbg border border-red-800/40 rounded-2xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-shield-halved text-red-500 text-2xl"></i>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">لوحة تحكم الأدمن والتحكم الكامل</h4>
+                            <p class="text-xs text-gray-300">إدارة القسائم، قبول ورفض الإعلانات، التحكم في المهمات (تثبيت ومسح)، الإرسال الجماعي والحسابات.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TASKS MANAGEMENT (PIN & DELETE TASKS) -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-tasks text-sky-400"></i>
+                        إدارة المهمات النشطة (التثبيت في الأعلى والمسح النهائي)
+                    </h3>
+                    <div id="admin-tasks-management-list" class="space-y-3">
+                        <!-- Admin tasks list rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- MASS BROADCAST & GIFTS FOR LEVELS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Mass Broadcast Notification Card -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-bullhorn text-sky-400"></i>
+                            إرسال رسالة جماعية للمستخدمين
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-4">أرسل إشعاراً جماعياً لجميع المستخدمين أو حدد مستوى معين مخصص.</p>
+                        <form onsubmit="event.preventDefault(); sendMassBroadcast();" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">تحديد الجمهور المستهدف</label>
+                                <select id="admin-msg-target" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                                    <option value="ALL">جميع المستخدمين (All Users)</option>
+                                    <option value="0">المستوى 0 فقط (Level 0)</option>
+                                    <option value="1">المستوى 1 فقط (Level 1)</option>
+                                    <option value="2">المستوى 2 فقط (Level 2)</option>
+                                    <option value="3">المستوى 3 فقط (Level 3)</option>
+                                    <option value="4">المستوى 4 فأعلى (Level 4+)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">نص الرسالة أو التنبيه</label>
+                                <textarea id="admin-msg-text" required rows="2" placeholder="اكتب الرسالة الجماعية هنا..." class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-sky-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-2.5 rounded-xl text-xs transition">إرسال الرسالة الجماعية 📢</button>
+                        </form>
+                    </div>
+
+                    <!-- Mass Gift Tokens Card -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-gift text-yellow-400"></i>
+                            إرسال هدية توكنات جماعية
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-4">وزّع مكافأة توكنات مجانية للجميع أو لمستوى محدد لتشجيعهم.</p>
+                        <form onsubmit="event.preventDefault(); sendMassTokensGift();" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">تحديد الفئة المستهدفة للهدية</label>
+                                <select id="admin-gift-target" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-yellow-500">
+                                    <option value="ALL">جميع المستخدمين (All Users)</option>
+                                    <option value="0">المستوى 0 فقط (Level 0)</option>
+                                    <option value="1">المستوى 1 فقط (Level 1)</option>
+                                    <option value="2">المستوى 2 فقط (Level 2)</option>
+                                    <option value="3">المستوى 3 فقط (Level 3)</option>
+                                    <option value="4">المستوى 4 فأعلى (Level 4+)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">عدد التوكنات الهدية لكل شخص</label>
+                                <input type="number" id="admin-gift-amount" required placeholder="مثال: 500" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-yellow-500">
+                            </div>
+                            <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 font-extrabold text-darkbg py-2.5 rounded-xl text-xs transition">إرسال الهدايا الآن 🎁</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Create Coupon Card -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-ticket text-sky-400"></i>
+                            إنشاء قسيمة مجانية جديدة
+                        </h3>
+                        <div class="space-y-3">
+                            <input type="text" id="admin-coupon-name" placeholder="كود القسيمة (مثال: FREE100)" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none uppercase">
+                            <input type="number" id="admin-coupon-reward" placeholder="عدد التوكنات (مثال: 500)" class="w-full bg-darkbg border border-bordercolor rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                            <button onclick="createCouponCode()" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-2.5 rounded-xl text-xs transition">إنشاء القسيمة ونشرها ✨</button>
+                        </div>
+                    </div>
+
+                    <!-- Live System Log -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                        <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-yellow-400"></i>
+                            السجل الحي لجميع أحداث النظام
+                        </h3>
+                        <div id="admin-live-logs" class="space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar text-[11px] font-mono text-gray-300 bg-darkbg p-3 rounded-xl border border-bordercolor">
+                            <!-- Logs dynamically updated -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Campaigns Section -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-bullhorn text-yellow-400"></i>
+                        جدول الإعلانات المعلقة من المعلنين
+                    </h3>
+                    <div id="admin-campaigns-list" class="space-y-3">
+                        <!-- Campaigns rendered here -->
+                    </div>
+                </div>
+
+                <!-- Withdrawals History Section -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-money-bill-check text-emerald-400"></i>
+                        سجل طلبات السحب والحالة
+                    </h3>
+                    <div id="admin-withdrawals-list" class="space-y-3">
+                        <!-- Withdrawals rendered here -->
+                    </div>
+                </div>
+
+                <!-- Accounts Control Section -->
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear text-red-400"></i>
+                        التحكم الشامل في الحسابات والتعديل
+                    </h3>
+                    <div id="admin-all-accounts-box" class="space-y-3">
+                        <!-- Users list rendered here -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 bg-cardbg border-t border-bordercolor z-40 px-4 py-2">
+        <div class="max-w-xl mx-auto flex justify-between items-center">
+            <button onclick="switchAppTab('tasks')" class="nav-btn active flex flex-col items-center text-gray-400 hover:text-sky-400 transition" data-tab="tasks">
+                <i class="fa-solid fa-list-check text-base"></i>
+                <span class="text-[10px] font-bold mt-1">المهام</span>
+            </button>
+            <button onclick="switchAppTab('referral')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-sky-400 transition" data-tab="referral">
+                <i class="fa-solid fa-ticket text-base"></i>
+                <span class="text-[10px] font-bold mt-1">القسائم</span>
+            </button>
+            <button onclick="switchAppTab('advertiser')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-sky-400 transition" data-tab="advertiser">
+                <i class="fa-solid fa-bullhorn text-base"></i>
+                <span class="text-[10px] font-bold mt-1">المعلن</span>
+            </button>
+            <button onclick="switchAppTab('wallet')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-sky-400 transition" data-tab="wallet">
+                <i class="fa-solid fa-wallet text-base"></i>
+                <span class="text-[10px] font-bold mt-1">المحفظة</span>
+            </button>
+            <button onclick="switchAppTab('profile')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-sky-400 transition" data-tab="profile">
+                <i class="fa-solid fa-user text-base"></i>
+                <span class="text-[10px] font-bold mt-1">حسابي</span>
+            </button>
+            <button id="admin-nav-btn" onclick="switchAppTab('admin')" class="nav-btn hidden flex flex-col items-center text-red-400 hover:text-red-300 transition" data-tab="admin">
+                <i class="fa-solid fa-shield-halved text-base"></i>
+                <span class="text-[10px] font-bold mt-1">المطور</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- CENTER STATUS MODAL (Success / Failure Dialog) -->
+    <div id="status-center-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-bordercolor w-full max-w-sm rounded-2xl p-6 text-center relative modal-bounce shadow-2xl">
+            <button onclick="closeStatusCenterModal()" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-darkbg border border-bordercolor text-gray-400 hover:text-white flex items-center justify-center font-bold">✕</button>
+            
+            <div id="status-modal-icon-container" class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl">
+                <!-- Icon inserted via JS -->
+            </div>
+            
+            <h3 id="status-modal-title" class="text-lg font-black mb-2 text-white"></h3>
+            <p id="status-modal-message" class="text-xs text-gray-300 mb-6 leading-relaxed whitespace-pre-line"></p>
+
+            <button onclick="closeStatusCenterModal()" class="w-full bg-sky-500 hover:bg-sky-600 font-extrabold text-darkbg py-2.5 rounded-xl transition text-xs">حسناً، فهمت</button>
+        </div>
+    </div>
+
+    <!-- Active Task Timer Overlay Modal -->
+    <div id="active-task-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-bordercolor w-full max-w-md rounded-2xl p-6 text-center relative modal-bounce shadow-2xl">
+            <h3 id="timer-task-title" class="text-base font-black text-sky-400 mb-2"></h3>
+            <p class="text-xs text-gray-300 mb-4">يجب عليك الانتقال لصفحة الزيارة والبقاء فيها لتكملة العد التنازلي. إذا ابتعدت عن الصفحة سيتوقف العد تلقائياً!</p>
+
+            <!-- Countdown Ring/Number -->
+            <div class="my-6">
+                <div id="task-timer-number" class="text-5xl font-black text-yellow-400">10</div>
+                <span class="text-xs text-gray-400 mt-1 block">ثوانٍ متبقية</span>
+            </div>
+
+            <p id="timer-status-text" class="text-xs font-bold text-emerald-400 mb-6">جارٍ التحقق من تواجدك في صفحة الزيارة...</p>
+
+            <button onclick="cancelActiveTask()" class="w-full bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 font-bold py-2.5 rounded-xl transition text-xs">إلغاء المهمة</button>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notifications-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-bordercolor w-full max-w-md rounded-2xl p-6 relative modal-bounce shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-sky-400"></i>
+                    إشعاراتك وتنبيهاتك
+                </h3>
+                <button onclick="closeNotificationsModal()" class="text-gray-400 hover:text-white font-bold">✕</button>
+            </div>
+            <div id="notifications-list-box" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                <p class="text-xs text-gray-500 text-center py-4">لا توجد إشعارات حالياً.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Popup Notification -->
+    <div id="toast-popup" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-sky-500 text-darkbg font-black text-xs px-5 py-2.5 rounded-xl shadow-2xl z-50 hidden transition">
+        تم الحفظ بنجاح!
+    </div>
+
+    <!-- Main JavaScript Application Logic -->
+    <script>
+        // Global App State Data
+        let currentUser = null;
+        let activeTasks = JSON.parse(localStorage.getItem('malKastActiveTasks')) || [
+            { id: 101, type: 'زيارة موقع', title: 'زيارة موقع التقنية والحلول', url: 'https://example.com', reward: 50, isPinned: false },
+            { id: 102, type: 'تفاعل / لايك', title: 'متابعة صفحة الفيسبوك الرسمية', url: 'https://facebook.com', reward: 20, isPinned: false }
+        ];
+        let pendingCampaigns = JSON.parse(localStorage.getItem('malKastPendingCampaigns')) || [];
+        let withdrawalsList = JSON.parse(localStorage.getItem('malKastWithdrawals')) || [];
+        let allUsersDatabase = JSON.parse(localStorage.getItem('malKastAllUsersDB')) || {};
+        let userActivities = JSON.parse(localStorage.getItem('malKastUserActivities')) || {};
+        let userNotifications = JSON.parse(localStorage.getItem('malKastUserNotifications')) || {};
+        let developerCoupons = JSON.parse(localStorage.getItem('malKastDevCoupons')) || { 'WELCOME100': 100 };
+        let usedCouponsRecord = JSON.parse(localStorage.getItem('malKastUsedCouponsRecord')) || {};
+        let systemLiveLogs = JSON.parse(localStorage.getItem('malKastSystemLogs')) || [];
+        
+        let selectedWalletType = 'فودافون كاش';
+        let currentTaskTimer = null;
+        let currentTaskWindow = null;
+        let currentTaskData = null;
+        let remainingTaskSeconds = 10;
+
+        /* ------------------ LEVEL SYSTEM LOGIC ------------------ */
+        const LEVEL_THRESHOLDS = [0, 2000, 10000, 35000, 100000];
+
+        function calculateUserLevel(earnedTokens) {
+            const total = earnedTokens || 0;
+            let level = 0;
+            for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+                if (total >= LEVEL_THRESHOLDS[i]) {
+                    level = i;
+                    break;
+                }
+            }
+            return level;
+        }
+
+        function getLevelProgressInfo(earnedTokens) {
+            const total = earnedTokens || 0;
+            const currentLevel = calculateUserLevel(total);
+            
+            if (currentLevel >= LEVEL_THRESHOLDS.length - 1) {
+                return {
+                    currentLevel,
+                    nextLevel: currentLevel,
+                    currentEarned: total,
+                    targetTokens: LEVEL_THRESHOLDS[currentLevel],
+                    percent: 100,
+                    text: `الماكس لفل (${total.toLocaleString()} توكن)`
+                };
+            }
+
+            const minThreshold = LEVEL_THRESHOLDS[currentLevel];
+            const maxThreshold = LEVEL_THRESHOLDS[currentLevel + 1];
+            const progress = total - minThreshold;
+            const needed = maxThreshold - minThreshold;
+            const percent = Math.min(100, Math.max(0, (progress / needed) * 100));
+
+            return {
+                currentLevel,
+                nextLevel: currentLevel + 1,
+                currentEarned: total,
+                targetTokens: maxThreshold,
+                percent: percent.toFixed(1),
+                text: `${total.toLocaleString()} / ${maxThreshold.toLocaleString()} توكن`
+            };
+        }
+
+        function addEarnedTokensToUser(userObj, amount) {
+            if (!userObj) return;
+            userObj.tokens = (userObj.tokens || 0) + amount;
+            userObj.totalEarnedTokens = (userObj.totalEarnedTokens || 0) + amount;
+            
+            const oldLevel = userObj.level || 0;
+            const newLevel = calculateUserLevel(userObj.totalEarnedTokens);
+            userObj.level = newLevel;
+
+            if (newLevel > oldLevel) {
+                pushNotification(userObj.email, `تهانينا! لقد ارتقيت إلى المستوى الجديد Level ${newLevel} 🏆`);
+                addSystemLog(`ترقية مستخدم: ${userObj.email} وصل إلى Level ${newLevel}`);
+            }
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('dev') === 'omar_kastlo_secret') {
+                currentUser = { 
+                    name: 'المطور عمر', 
+                    email: 'omar_developer@kast.com', 
+                    password: 'admin_password_123', 
+                    tokens: 1000000, 
+                    totalEarnedTokens: 1000000,
+                    level: 4,
+                    isAdmin: true, 
+                    isBanned: false 
+                };
+                allUsersDatabase[currentUser.email] = currentUser;
+                saveAllData();
+                enterMainApp();
+                return;
+            }
+
+            const savedUser = localStorage.getItem('malKastActiveUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                if (allUsersDatabase[currentUser.email]) {
+                    currentUser = allUsersDatabase[currentUser.email];
+                }
+                
+                if (currentUser.totalEarnedTokens === undefined) {
+                    currentUser.totalEarnedTokens = currentUser.tokens || 0;
+                }
+                currentUser.level = calculateUserLevel(currentUser.totalEarnedTokens);
+
+                if (currentUser.isBanned) {
+                    showCenterModal('حساب محظور!', 'تم حظر حسابك من قبل المطور لانتهاك الشروط.', false);
+                    logoutUser();
+                    return;
+                }
+                enterMainApp();
+            }
+
+            fillPackageDetails();
+        };
+
+        function saveAllData() {
+            localStorage.setItem('malKastActiveTasks', JSON.stringify(activeTasks));
+            localStorage.setItem('malKastPendingCampaigns', JSON.stringify(pendingCampaigns));
+            localStorage.setItem('malKastWithdrawals', JSON.stringify(withdrawalsList));
+            localStorage.setItem('malKastAllUsersDB', JSON.stringify(allUsersDatabase));
+            localStorage.setItem('malKastUserActivities', JSON.stringify(userActivities));
+            localStorage.setItem('malKastUserNotifications', JSON.stringify(userNotifications));
+            localStorage.setItem('malKastDevCoupons', JSON.stringify(developerCoupons));
+            localStorage.setItem('malKastUsedCouponsRecord', JSON.stringify(usedCouponsRecord));
+            localStorage.setItem('malKastSystemLogs', JSON.stringify(systemLiveLogs));
+            if (currentUser) {
+                localStorage.setItem('malKastActiveUser', JSON.stringify(currentUser));
+            }
+        }
+
+        function addSystemLog(logText) {
+            const timeStr = new Date().toLocaleTimeString('ar-EG');
+            systemLiveLogs.unshift(`[${timeStr}] ${logText}`);
+            if (systemLiveLogs.length > 50) systemLiveLogs.pop();
+            saveAllData();
+            renderSystemLogs();
+        }
+
+        function renderSystemLogs() {
+            const container = document.getElementById('admin-live-logs');
+            if (!container) return;
+            container.innerHTML = systemLiveLogs.length === 0 ? '<p class="text-gray-500 text-center py-2">لا توجد سجلات بعد.</p>' :
+                systemLiveLogs.map(l => `<div>${l}</div>`).join('');
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast-popup');
+            t.innerText = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => { t.classList.add('hidden'); }, 3000);
+        }
+
+        function switchAuthTab(tab) {
+            document.getElementById('tab-btn-register').classList.toggle('bg-sky-500', tab === 'register');
+            document.getElementById('tab-btn-register').classList.toggle('text-white', tab === 'register');
+            document.getElementById('tab-btn-login').classList.toggle('bg-sky-500', tab === 'login');
+            document.getElementById('tab-btn-login').classList.toggle('text-white', tab === 'login');
+
+            document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-password').value.trim();
+
+            if (!name || !email || !pass) { alert('يرجى ملء جميع الحقول'); return; }
+            if (allUsersDatabase[email]) { alert('البريد الإلكتروني مسجل مسبقاً!'); return; }
+
+            // تم إزالة هدايا التسجيل التلقائية وأصبح الحساب يبدأ بـ 0 توكن تماماً
+            currentUser = { 
+                name, 
+                email, 
+                password: pass, 
+                tokens: 0, 
+                totalEarnedTokens: 0,
+                level: 0,
+                isAdmin: false, 
+                isBanned: false, 
+                lastWheelSpin: null 
+            };
+            allUsersDatabase[email] = currentUser;
+            saveAllData();
+            
+            addSystemLog(`تسجيل حساب جديد بدون هدايا: ${email}`);
+            logUserActivity(email, 'إنشاء حساب جديد بنجاح 🎉');
+            pushNotification(email, 'مرحباً بك في Mal Kast! تم إنشاء حسابك بنجاح.');
+            
+            enterMainApp();
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('log-email').value.trim().toLowerCase();
+            const pass = document.getElementById('log-password').value.trim();
+
+            if (email === 'omar_developer@kast.com' && pass === 'admin_password_123') {
+                currentUser = { 
+                    name: 'المطور عمر', 
+                    email, 
+                    password: pass, 
+                    tokens: 1000000, 
+                    totalEarnedTokens: 1000000,
+                    level: 4,
+                    isAdmin: true, 
+                    isBanned: false 
+                };
+            } else if (allUsersDatabase[email] && allUsersDatabase[email].password === pass) {
+                currentUser = allUsersDatabase[email];
+            } else {
+                alert('البريد أو كلمة المرور غير صحيحة!');
+                return;
+            }
+
+            if (currentUser.isBanned) {
+                alert('هذا الحساب محظور من قبل المطور.');
+                return;
+            }
+
+            if (currentUser.totalEarnedTokens === undefined) {
+                currentUser.totalEarnedTokens = currentUser.tokens || 0;
+            }
+            currentUser.level = calculateUserLevel(currentUser.totalEarnedTokens);
+
+            allUsersDatabase[email] = currentUser;
+            saveAllData();
+            addSystemLog(`تسجيل دخول: ${email}`);
+            enterMainApp();
+        }
+
+        function enterMainApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            document.getElementById('header-user-status').classList.remove('hidden');
+
+            if (currentUser.isAdmin) {
+                document.getElementById('admin-nav-btn').classList.remove('hidden');
+                document.getElementById('role-badge').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-nav-btn').classList.add('hidden');
+                document.getElementById('role-badge').classList.add('hidden');
+            }
+
+            updateUserUI();
+            switchAppTab('tasks');
+            checkLuckyWheelStatus();
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('malKastActiveUser');
+            currentUser = null;
+            document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('bottom-nav').classList.add('hidden');
+            document.getElementById('header-user-status').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+
+        function updateUserUI() {
+            if (!currentUser) return;
+            
+            currentUser.level = calculateUserLevel(currentUser.totalEarnedTokens);
+            const levelInfo = getLevelProgressInfo(currentUser.totalEarnedTokens);
+
+            document.getElementById('header-user-level').innerText = `Level ${currentUser.level}`;
+            document.getElementById('user-tokens-display').innerText = currentUser.tokens.toLocaleString();
+            document.getElementById('user-egp-display').innerText = (currentUser.tokens / 5000).toFixed(2) + ' EGP';
+            
+            document.getElementById('profile-display-name').innerText = currentUser.name;
+            document.getElementById('profile-display-email').innerText = currentUser.email;
+            document.getElementById('profile-level-badge').innerText = `Level ${currentUser.level}`;
+            document.getElementById('profile-tokens-count').innerText = currentUser.tokens.toLocaleString();
+            document.getElementById('profile-total-earned').innerText = (currentUser.totalEarnedTokens || 0).toLocaleString();
+
+            document.getElementById('level-progress-text').innerText = levelInfo.text;
+            document.getElementById('level-progress-bar').style.width = levelInfo.percent + '%';
+
+            document.getElementById('setting-name-input').value = currentUser.name;
+            document.getElementById('setting-email-input').value = currentUser.email;
+            document.getElementById('ref-link-box').innerText = `${window.location.origin}/?ref=${encodeURIComponent(currentUser.email)}`;
+
+            allUsersDatabase[currentUser.email] = currentUser;
+            saveAllData();
+
+            renderUserLiveActivity();
+            renderTasksList();
+            updateWithdrawCounter();
+            checkNotificationsDot();
+        }
+
+        function switchAppTab(tabId) {
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                const isActive = b.getAttribute('data-tab') === tabId;
+                b.classList.toggle('text-sky-400', isActive);
+                b.classList.toggle('text-gray-400', !isActive);
+            });
+
+            document.getElementById('tab-tasks').classList.toggle('hidden', tabId !== 'tasks');
+            document.getElementById('tab-referral').classList.toggle('hidden', tabId !== 'referral');
+            document.getElementById('tab-advertiser').classList.toggle('hidden', tabId !== 'advertiser');
+            document.getElementById('tab-wallet').classList.toggle('hidden', tabId !== 'wallet');
+            document.getElementById('tab-profile').classList.toggle('hidden', tabId !== 'profile');
+            document.getElementById('tab-admin').classList.toggle('hidden', tabId !== 'admin');
+
+            if (tabId === 'admin') updateAdminPanelUI();
+        }
+
+        /* ------------------ WHEEL OF FORTUNE ------------------ */
+        function checkLuckyWheelStatus() {
+            if (!currentUser) return;
+            const btn = document.getElementById('spin-wheel-btn');
+            const msg = document.getElementById('wheel-timer-msg');
+
+            if (currentUser.lastWheelSpin) {
+                const last = new Date(currentUser.lastWheelSpin).getTime();
+                const now = new Date().getTime();
+                const diffHours = (now - last) / (1000 * 60 * 60);
+
+                if (diffHours < 24) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    const hoursLeft = Math.ceil(24 - diffHours);
+                    msg.innerText = `عجلة الحظ متاحة بعد ${hoursLeft} ساعة.`;
+                    msg.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            msg.classList.add('hidden');
+        }
+
+        function spinLuckyWheel() {
+            if (!currentUser) return;
+            if (currentUser.lastWheelSpin) {
+                const last = new Date(currentUser.lastWheelSpin).getTime();
+                const diffHours = (new Date().getTime() - last) / (1000 * 60 * 60);
+                if (diffHours < 24) {
+                    showCenterModal('مغلقة حالياً!', 'يمكنك تدوير عجلة الحظ مرة واحدة كل 24 ساعة فقط.', false);
+                    return;
+                }
+            }
+
+            const rewards = [50, 100, 150, 200, 300];
+            const won = rewards[Math.floor(Math.random() * rewards.length)];
+            
+            addEarnedTokensToUser(currentUser, won);
+            currentUser.lastWheelSpin = new Date().toISOString();
+            
+            updateUserUI();
+            checkLuckyWheelStatus();
+            addSystemLog(`تدوير عجلة الحظ: ${currentUser.email} ربح ${won} توكن`);
+            logUserActivity(currentUser.email, `ربحت +${won} توكن من عجلة الحظ 🎡`);
+            showCenterModal('إنجاز عجلة الحظ!', `أنجزت المهمة\nعجلة الحظ اليومية\n+${won} توكنز`, true);
+        }
+
+        function claimDailyBonus() {
+            let lastClaim = localStorage.getItem('lastBonus_' + currentUser.email);
+            let today = new Date().toDateString();
+            if (lastClaim === today) {
+                showCenterModal('مستلمة مسبقاً!', 'لقد استلمت المكافأة اليومية بالفعل، عد غداً لاستلامها مجدداً.', false);
+                return;
+            }
+            localStorage.setItem('lastBonus_' + currentUser.email, today);
+            
+            addEarnedTokensToUser(currentUser, 25);
+            updateUserUI();
+            logUserActivity(currentUser.email, 'استلام المكافأة اليومية +25 توكن 🎁');
+            showCenterModal('إنجاز المهمة!', 'أنجزت المهمة\nالمكافأة اليومية\n+25 توكنز', true);
+        }
+
+        /* ------------------ TASKS RENDERING & PINNING/DELETE ACTIONS ------------------ */
+        function getSortedTasks() {
+            return [...activeTasks].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+        }
+
+        function togglePinTask(taskId) {
+            const t = activeTasks.find(item => item.id === taskId);
+            if (t) {
+                t.isPinned = !t.isPinned;
+                saveAllData();
+                renderTasksList();
+                if (currentUser && currentUser.isAdmin) updateAdminPanelUI();
+                showToast(t.isPinned ? 'تم تثبيت المهمة في الأعلى 📌' : 'تم إلغاء تثبيت المهمة');
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('هل أنت تأكد من مسح هذه المهمة نهائياً؟')) {
+                activeTasks = activeTasks.filter(item => item.id !== taskId);
+                saveAllData();
+                renderTasksList();
+                if (currentUser && currentUser.isAdmin) updateAdminPanelUI();
+                showToast('تم مسح المهمة بنجاح 🗑️');
+            }
+        }
+
+        function renderTasksList() {
+            const container = document.getElementById('tasks-list-container');
+            const sorted = getSortedTasks();
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 text-center py-6 col-span-2">لا توجد مهام جديدة متاحة حالياً.</p>';
+                return;
+            }
+
+            container.innerHTML = sorted.map((t) => {
+                const isAdmin = currentUser && currentUser.isAdmin;
+                return `
+                <div class="bg-darkbg border ${t.isPinned ? 'border-yellow-500/70 shadow-lg shadow-yellow-500/10' : 'border-bordercolor'} p-4 rounded-xl flex items-center justify-between relative">
+                    ${t.isPinned ? '<span class="absolute -top-2.5 right-3 bg-yellow-500 text-darkbg text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-thumbtack text-[8px]"></i> مثبتة في الأعلى</span>' : ''}
+                    <div>
+                        <h4 class="text-xs font-bold text-white mb-1 flex items-center gap-1.5">
+                            ${t.title}
+                        </h4>
+                        <p class="text-[10px] text-sky-400">المكافأة: ${t.reward} توكن (${t.type})</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${isAdmin ? `
+                            <button onclick="togglePinTask(${t.id})" title="${t.isPinned ? 'إلغاء التثبيت' : 'تثبيت في الأعلى'}" class="p-1.5 rounded-lg ${t.isPinned ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40' : 'bg-darkbg text-gray-400 hover:text-yellow-400 border border-bordercolor'} text-xs">
+                                <i class="fa-solid fa-thumbtack"></i>
+                            </button>
+                            <button onclick="deleteTask(${t.id})" title="مسح المهمة" class="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 text-xs">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        ` : ''}
+                        <button onclick="startTaskWithVisibilityById(${t.id})" class="bg-sky-500 hover:bg-sky-600 font-bold text-darkbg px-4 py-1.5 rounded-lg text-xs transition">تنفيذ</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function startTaskWithVisibilityById(taskId) {
+            currentTaskData = activeTasks.find(t => t.id === taskId);
+            if (!currentTaskData) return;
+
+            remainingTaskSeconds = 10;
+            currentTaskWindow = window.open(currentTaskData.url, '_blank');
+
+            document.getElementById('timer-task-title').innerText = currentTaskData.title;
+            document.getElementById('task-timer-number').innerText = remainingTaskSeconds;
+            document.getElementById('active-task-modal').classList.remove('hidden');
+
+            if (currentTaskTimer) clearInterval(currentTaskTimer);
+
+            currentTaskTimer = setInterval(() => {
+                if (currentTaskWindow && !currentTaskWindow.closed) {
+                    document.getElementById('timer-status-text').innerText = 'جارٍ احتساب الوقت أثناء تواجدك بالصفحة...';
+                    document.getElementById('timer-status-text').className = 'text-xs font-bold text-emerald-400 mb-6';
+                    
+                    remainingTaskSeconds--;
+                    document.getElementById('task-timer-number').innerText = remainingTaskSeconds;
+
+                    if (remainingTaskSeconds <= 0) {
+                        clearInterval(currentTaskTimer);
+                        document.getElementById('active-task-modal').classList.add('hidden');
+                        completeTaskSuccess();
+                    }
+                } else {
+                    document.getElementById('timer-status-text').innerText = 'توقف العد! يجب فتح صفحة المهمة والبقاء بداخلها.';
+                    document.getElementById('timer-status-text').className = 'text-xs font-bold text-red-400 mb-6';
+                }
+            }, 1000);
+        }
+
+        function cancelActiveTask() {
+            if (currentTaskTimer) clearInterval(currentTaskTimer);
+            if (currentTaskWindow && !currentTaskWindow.closed) currentTaskWindow.close();
+            document.getElementById('active-task-modal').classList.add('hidden');
+            showCenterModal('فشلت المهمة', `فشلت المهمة\n${currentTaskData?.title || ''}\nلم تقم بالبقاء في الموقع الزيارة بالوقت الكافي.`, false);
+        }
+
+        function completeTaskSuccess() {
+            addEarnedTokensToUser(currentUser, currentTaskData.reward);
+            updateUserUI();
+            addSystemLog(`إنجاز مهمة: ${currentUser.email} أكمل "${currentTaskData.title}" (+${currentTaskData.reward} توكن)`);
+            logUserActivity(currentUser.email, `أنجزت مهمة "${currentTaskData.title}" (+${currentTaskData.reward} توكن) 🎯`);
+            showCenterModal('أنجزت المهمة!', `أنجزت المهمة\n${currentTaskData.title}\n+${currentTaskData.reward} توكنز`, true);
+        }
+
+        /* ------------------ CENTER STATUS MODAL ------------------ */
+        function showCenterModal(title, text, isSuccess) {
+            const container = document.getElementById('status-modal-icon-container');
+            const modal = document.getElementById('status-center-modal');
+            
+            document.getElementById('status-modal-title').innerText = title;
+            document.getElementById('status-modal-message').innerText = text;
+
+            if (isSuccess) {
+                container.className = 'w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                container.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            } else {
+                container.className = 'w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl bg-red-500/20 text-red-400 border border-red-500/30';
+                container.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeStatusCenterModal() {
+            document.getElementById('status-center-modal').classList.add('hidden');
+        }
+
+        /* ------------------ ADVERTISER LOGIC ------------------ */
+        function fillPackageDetails() {
+            const egpVal = parseInt(document.getElementById('adv-package-select').value) || 200;
+            const type = document.getElementById('adv-type').value;
+            const step = (egpVal - 200) / 100;
+
+            let reward = (type === 'تفاعل / لايك') ? (20 + (step * 10)) : (50 + (step * 10));
+            document.getElementById('adv-reward').value = reward;
+        }
+
+        function submitCampaignWithProof() {
+            const title = document.getElementById('adv-title').value.trim();
+            const url = document.getElementById('adv-url').value.trim();
+            const reward = parseInt(document.getElementById('adv-reward').value) || 50;
+            const amountEGP = parseInt(document.getElementById('adv-package-select').value) || 200;
+            const proofPhone = document.getElementById('adv-proof-phone').value.trim();
+
+            if (!title || !url || !proofPhone) { alert('يرجى ملء جميع البيانات المطلوب.'); return; }
+
+            pendingCampaigns.push({
+                id: Date.now(),
+                advertiser: currentUser.email,
+                title, url, reward, amountEGP, proofPhone,
+                status: 'معلق'
+            });
+
+            saveAllData();
+            addSystemLog(`إعلان جديد مرفوع للمراجعة من: ${currentUser.email}`);
+            showCenterModal('تم إرسال إعلانك!', 'تم إرسال الحملة الإعلانية بنجاح للمطور، سيتم مراجعة الدفع ونشر الإعلان فوراً.', true);
+        }
+
+        /* ------------------ WALLET & WITHDRAWAL ------------------ */
+        function selectWalletMethod(methodName, btnEl) {
+            document.querySelectorAll('.wallet-method-btn').forEach(b => {
+                b.classList.remove('border-sky-500', 'border-2');
+                b.classList.add('border-bordercolor');
+            });
+            btnEl.classList.add('border-sky-500', 'border-2');
+            selectedWalletType = methodName;
+        }
+
+        function updateWithdrawCounter() {
+            const egp = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
+            const reqTokens = egp * 5000;
+            document.getElementById('counter-tokens-req').innerText = reqTokens.toLocaleString();
+            if (currentUser) document.getElementById('counter-user-tokens').innerText = currentUser.tokens.toLocaleString();
+        }
+
+        function requestWithdrawal() {
+            const egp = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
+            const phone = document.getElementById('withdraw-phone-input').value.trim();
+            const reqTokens = egp * 5000;
+
+            if (egp < 50) { alert('الحد الأدنى للسحب هو 50 جنيه مصري.'); return; }
+            if (!phone) { alert('يرجى إدخال رقم المحفظة لاستلام المبلغ.'); return; }
+            if (currentUser.tokens < reqTokens) { alert('رصيد التوكنات الخاص بك غير كافٍ لسحب هذا المبلغ.'); return; }
+
+            currentUser.tokens -= reqTokens;
+            updateUserUI();
+
+            withdrawalsList.push({
+                id: Date.now(),
+                user: currentUser.email,
+                amountEGP: egp,
+                tokens: reqTokens,
+                phone,
+                method: selectedWalletType,
+                status: 'قيد المراجعة'
+            });
+
+            saveAllData();
+            addSystemLog(`طلب سحب: ${currentUser.email} طلب سحب ${egp} ج.م`);
+            showCenterModal('تم تقديم طلب السحب!', `تم خصم ${reqTokens} توكن وتقديم طلب سحب ${egp} جنيه عبر ${selectedWalletType}.`, true);
+        }
+
+        /* ------------------ PROFILE & USER SETTINGS ------------------ */
+        function updateUserSettings() {
+            const name = document.getElementById('setting-name-input').value.trim();
+            const email = document.getElementById('setting-email-input').value.trim().toLowerCase();
+            const pass = document.getElementById('setting-password-input').value.trim();
+
+            if (!name || !email) { alert('يرجى تعبئة الاسم والبريد الإلكتروني.'); return; }
+
+            delete allUsersDatabase[currentUser.email];
+            currentUser.name = name;
+            currentUser.email = email;
+            if (pass) currentUser.password = pass;
+
+            allUsersDatabase[email] = currentUser;
+            saveAllData();
+            updateUserUI();
+            showToast('تم تحديث البيانات الشخصية بنجاح!');
+        }
+
+        /* ------------------ COUPONS & REFERRALS ------------------ */
+        function createCouponCode() {
+            const code = document.getElementById('admin-coupon-name').value.trim().toUpperCase();
+            const reward = parseInt(document.getElementById('admin-coupon-reward').value);
+
+            if (!code || isNaN(reward)) { alert('يرجى كتابة كود وقيمة توكنات صحيحة.'); return; }
+
+            developerCoupons[code] = reward;
+            saveAllData();
+            addSystemLog(`إنشاء قسيمة جديدة: ${code} بقيمة ${reward} توكن`);
+            showToast(`تم إنشاء القسيمة "${code}" بنجاح!`);
+        }
+
+        function redeemCouponCode() {
+            const code = document.getElementById('coupon-code-input').value.trim().toUpperCase();
+            if (!developerCoupons[code]) {
+                showCenterModal('قسيمة خاطئة!', 'كود القسيمة المدخل غير صحيح أو انتهت صلاحيته.', false);
+                return;
+            }
+
+            if (!usedCouponsRecord[currentUser.email]) usedCouponsRecord[currentUser.email] = [];
+            if (usedCouponsRecord[currentUser.email].includes(code)) {
+                showCenterModal('مستخدمة مسبقاً!', 'لقد قمت بتفعيل واستخدام هذه القسيمة من قبل.', false);
+                return;
+            }
+
+            const reward = developerCoupons[code];
+            addEarnedTokensToUser(currentUser, reward);
+            usedCouponsRecord[currentUser.email].push(code);
+
+            updateUserUI();
+            addSystemLog(`تفعيل قسيمة: ${currentUser.email} استخدم ${code} (+${reward} توكن)`);
+            showCenterModal('تم تفعيل القسيمة!', `أنجزت المهمة\nتفعيل قسيمة ${code}\n+${reward} توكنز`, true);
+        }
+
+        function copyReferralLink() {
+            const link = document.getElementById('ref-link-box').innerText;
+            const tempInput = document.createElement('input');
+            tempInput.value = link;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('تم نسخ رابط الإحالة إلى الحافظة!');
+        }
+
+        /* ------------------ MASS BROADCAST & LEVEL GIFTS ------------------ */
+        function sendMassBroadcast() {
+            const target = document.getElementById('admin-msg-target').value;
+            const text = document.getElementById('admin-msg-text').value.trim();
+
+            if (!text) { alert('يرجى كتابة نص الرسالة أولاً!'); return; }
+
+            let recipientCount = 0;
+            Object.keys(allUsersDatabase).forEach(email => {
+                const u = allUsersDatabase[email];
+                const uLevel = calculateUserLevel(u.totalEarnedTokens || 0);
+
+                let isEligible = false;
+                if (target === 'ALL') isEligible = true;
+                else if (target === '4') isEligible = uLevel >= 4;
+                else isEligible = uLevel === parseInt(target);
+
+                if (isEligible) {
+                    pushNotification(email, `📢 إشعار المطور: ${text}`);
+                    recipientCount++;
+                }
+            });
+
+            addSystemLog(`إرسال رسالة جماعية: (${target}) - أرسلت لـ ${recipientCount} مستخدم`);
+            showToast(`تم إرسال الرسالة إلى ${recipientCount} مستخدم بنجاح!`);
+            document.getElementById('admin-msg-text').value = '';
+        }
+
+        function sendMassTokensGift() {
+            const target = document.getElementById('admin-gift-target').value;
+            const giftAmount = parseInt(document.getElementById('admin-gift-amount').value);
+
+            if (isNaN(giftAmount) || giftAmount <= 0) { alert('يرجى تحديد عدد توكنات صحيح!'); return; }
+
+            let recipientCount = 0;
+            Object.keys(allUsersDatabase).forEach(email => {
+                const u = allUsersDatabase[email];
+                const uLevel = calculateUserLevel(u.totalEarnedTokens || 0);
+
+                let isEligible = false;
+                if (target === 'ALL') isEligible = true;
+                else if (target === '4') isEligible = uLevel >= 4;
+                else isEligible = uLevel === parseInt(target);
+
+                if (isEligible) {
+                    addEarnedTokensToUser(u, giftAmount);
+                    pushNotification(email, `🎁 تم إرسال هدية توكنات من المطور! تم إضافة +${giftAmount} توكن إلى حسابك 🎉`);
+                    recipientCount++;
+                }
+            });
+
+            saveAllData();
+            if (currentUser) updateUserUI();
+            addSystemLog(`هدية جماعية: ${giftAmount} توكن لفئة (${target}) - عدد المستلمين: ${recipientCount}`);
+            showToast(`تم توزيع الهدية على ${recipientCount} مستخدم بنجاح! 🎉`);
+            document.getElementById('admin-gift-amount').value = '';
+        }
+
+        /* ------------------ NOTIFICATIONS & LOGS ------------------ */
+        function pushNotification(userEmail, message) {
+            if (!userNotifications[userEmail]) userNotifications[userEmail] = [];
+            userNotifications[userEmail].unshift({ message, time: new Date().toLocaleTimeString('ar-EG'), unread: true });
+            saveAllData();
+            if (currentUser && currentUser.email === userEmail) checkNotificationsDot();
+        }
+
+        function checkNotificationsDot() {
+            if (!currentUser) return;
+            const list = userNotifications[currentUser.email] || [];
+            const hasUnread = list.some(n => n.unread);
+            document.getElementById('notif-dot').classList.toggle('hidden', !hasUnread);
+        }
+
+        function openNotificationsModal() {
+            const box = document.getElementById('notifications-list-box');
+            let list = userNotifications[currentUser.email] || [];
+            list.forEach(n => n.unread = false);
+            saveAllData();
+            checkNotificationsDot();
+
+            box.innerHTML = list.length === 0 ? '<p class="text-xs text-gray-500 text-center py-4">لا توجد إشعارات حالياً.</p>' :
+                list.map(n => `<div class="bg-darkbg p-3 rounded-xl border-r-4 border-sky-400 text-xs"><p class="text-white mb-1 font-bold">${n.message}</p><span class="text-[10px] text-gray-400">${n.time}</span></div>`).join('');
+
+            document.getElementById('notifications-modal').classList.remove('hidden');
+        }
+
+        function closeNotificationsModal() {
+            document.getElementById('notifications-modal').classList.add('hidden');
+        }
+
+        function logUserActivity(userEmail, text) {
+            if (!userActivities[userEmail]) userActivities[userEmail] = [];
+            userActivities[userEmail].unshift({ text, time: new Date().toLocaleTimeString('ar-EG') });
+            saveAllData();
+            if (currentUser && currentUser.email === userEmail) renderUserLiveActivity();
+        }
+
+        function renderUserLiveActivity() {
+            const container = document.getElementById('live-user-activity-feed');
+            if (!currentUser) return;
+            let list = userActivities[currentUser.email] || [];
+            container.innerHTML = list.length === 0 ? '<p class="text-xs text-gray-500 text-center py-4">لا توجد نشاطات مسجلة بعد.</p>' :
+                list.map(a => `<div class="flex justify-between items-center text-xs border-b border-bordercolor pb-1.5"><span class="text-gray-300">${a.text}</span><span class="text-[10px] text-sky-400 font-mono">${a.time}</span></div>`).join('');
+        }
+
+        /* ------------------ ADMIN PANEL CONTROL ------------------ */
+        function updateAdminPanelUI() {
+            renderSystemLogs();
+
+            // Render Tasks Management Panel (Pinning & Deleting)
+            const adminTasksBox = document.getElementById('admin-tasks-management-list');
+            if (activeTasks.length === 0) {
+                adminTasksBox.innerHTML = '<p class="text-xs text-gray-500">لا توجد مهمات نشطة حالياً.</p>';
+            } else {
+                adminTasksBox.innerHTML = activeTasks.map(t => `
+                    <div class="bg-darkbg border border-bordercolor p-3.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                                ${t.title}
+                                ${t.isPinned ? '<span class="bg-yellow-500 text-darkbg text-[9px] font-black px-2 py-0.5 rounded-full">مثبتة</span>' : ''}
+                            </h4>
+                            <p class="text-[11px] text-gray-400 mt-0.5">النوع: ${t.type} | المكافأة: ${t.reward} توكن | ID: ${t.id}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="togglePinTask(${t.id})" class="bg-yellow-500 hover:bg-yellow-600 font-bold text-darkbg px-3 py-1.5 rounded-lg text-xs transition">
+                                ${t.isPinned ? 'إلغاء التثبيت 📌' : 'تثبيت في الأعلى 📌'}
+                            </button>
+                            <button onclick="deleteTask(${t.id})" class="bg-red-500 hover:bg-red-600 font-bold text-white px-3 py-1.5 rounded-lg text-xs transition">
+                                مسح المهمة 🗑️
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Render Campaigns
+            const campBox = document.getElementById('admin-campaigns-list');
+            campBox.innerHTML = pendingCampaigns.length === 0 ? '<p class="text-xs text-gray-500">لا توجد إعلانات معلقة للمراجعة.</p>' :
+                pendingCampaigns.map((c, i) => `
+                    <div class="bg-darkbg border border-bordercolor p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <div>
+                            <h4 class="text-xs font-bold text-white mb-1">${c.title} (${c.amountEGP} ج.م)</h4>
+                            <p class="text-[11px] text-gray-400">المعلن: ${c.advertiser} | إثبات الدفع: ${c.proofPhone}</p>
+                            <a href="${c.url}" target="_blank" class="text-[11px] text-sky-400 underline mt-1 inline-block">معاينة رابط الموقع المرفوع 🔗</a>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="approveCampaign(${i})" class="bg-emerald-500 hover:bg-emerald-600 font-bold text-darkbg px-3 py-1.5 rounded-lg text-xs">قبول ونشر ✅</button>
+                            <button onclick="rejectCampaign(${i})" class="bg-red-500 hover:bg-red-600 font-bold text-white px-3 py-1.5 rounded-lg text-xs">رفض ❌</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            // Render Withdrawals History
+            const wdBox = document.getElementById('admin-withdrawals-list');
+            wdBox.innerHTML = withdrawalsList.length === 0 ? '<p class="text-xs text-gray-500">لا توجد طلبات سحب حالياً.</p>' :
+                withdrawalsList.map((w, i) => `
+                    <div class="bg-darkbg border border-bordercolor p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <div>
+                            <h4 class="text-xs font-bold text-white mb-1">المستخدم: ${w.user}</h4>
+                            <p class="text-[11px] text-emerald-400 font-bold">المبلغ: ${w.amountEGP} ج.م (${w.method}) | الهاتف: ${w.phone}</p>
+                            <span class="text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded mt-1 inline-block font-bold">${w.status}</span>
+                        </div>
+                        ${w.status === 'قيد المراجعة' ? `<button onclick="approveWithdrawal(${i})" class="bg-emerald-500 hover:bg-emerald-600 font-bold text-darkbg px-3 py-1.5 rounded-lg text-xs">تأكيد تحويل الدفع ✅</button>` : '<span class="text-xs text-emerald-400 font-bold">تم المحول والموافقة</span>'}
+                    </div>
+                `).join('');
+
+            // Render Accounts Control
+            const accBox = document.getElementById('admin-all-accounts-box');
+            const userKeys = Object.keys(allUsersDatabase);
+            accBox.innerHTML = userKeys.length === 0 ? '<p class="text-xs text-gray-500">لا يوجد مستخدمون مسجلون.</p>' :
+                userKeys.map(email => {
+                    const u = allUsersDatabase[email];
+                    const uLevel = calculateUserLevel(u.totalEarnedTokens || 0);
+                    return `
+                        <div class="bg-darkbg border border-bordercolor p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                            <div>
+                                <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                                    ${u.name} (${u.email})
+                                    <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-black border border-purple-500/30">Lvl ${uLevel}</span>
+                                    ${u.isBanned ? '<span class="text-red-500 font-black">[محظور]</span>' : ''}
+                                </h4>
+                                <p class="text-[11px] text-sky-400">التوكنز: ${u.tokens.toLocaleString()} | إجمالي التجميع: ${(u.totalEarnedTokens || 0).toLocaleString()}</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="adminEditTokens('${u.email}')" class="bg-sky-500 hover:bg-sky-600 font-bold text-darkbg px-2.5 py-1 rounded text-xs">تعديل التوكنز 🪙</button>
+                                <button onclick="adminSendMessage('${u.email}')" class="bg-yellow-500 hover:bg-yellow-600 font-bold text-darkbg px-2.5 py-1 rounded text-xs">إرسال رسالة ✉️</button>
+                                <button onclick="adminToggleBan('${u.email}')" class="bg-orange-500 hover:bg-orange-600 font-bold text-white px-2.5 py-1 rounded text-xs">${u.isBanned ? 'إلغاء الحظر' : 'حظر الحساب'}</button>
+                                <button onclick="adminDeleteUser('${u.email}')" class="bg-red-500 hover:bg-red-600 font-bold text-white px-2.5 py-1 rounded text-xs">مسح الحساب 🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        function approveCampaign(index) {
+            const c = pendingCampaigns[index];
+            activeTasks.push({ id: Date.now(), type: 'زيارة موقع', title: c.title, url: c.url, reward: c.reward, isPinned: false });
+            pushNotification(c.advertiser, `تهانينا! تم قبول إعلانك "${c.title}" بنجاح وهو متاح الآن لجميع المستخدمين ✅`);
+            
+            pendingCampaigns.splice(index, 1);
+            saveAllData();
+            updateAdminPanelUI();
+            renderTasksList();
+            showToast('تم قبول ونشر الإعلان بنجاح!');
+        }
+
+        function rejectCampaign(index) {
+            const c = pendingCampaigns[index];
+            pushNotification(c.advertiser, `عذراً، تم رفض إعلانك "${c.title}". يرجى التأكد من الدفع والروابط المرفوعة ❌`);
+            
+            pendingCampaigns.splice(index, 1);
+            saveAllData();
+            updateAdminPanelUI();
+            showToast('تم رفض الإعلان وإرسال إشعار للمعلن.');
+        }
+
+        function approveWithdrawal(index) {
+            const w = withdrawalsList[index];
+            w.status = 'تم التحويل بنجاح';
+            pushNotification(w.user, `تم تحويل مبلغ السحب الخاص بك (${w.amountEGP} ج.م) بنجاح إلى رقمك ${w.phone} 🎉`);
+            
+            saveAllData();
+            updateAdminPanelUI();
+            showToast('تم تأكيد طلب السحب بنجاح!');
+        }
+
+        function adminEditTokens(email) {
+            const user = allUsersDatabase[email];
+            const newTokens = prompt(`أدخل عدد التوكنات الجديد للمستخدم (${user.name}):`, user.tokens);
+            if (newTokens !== null && !isNaN(parseInt(newTokens))) {
+                user.tokens = parseInt(newTokens);
+                saveAllData();
+                updateAdminPanelUI();
+                if (currentUser && currentUser.email === email) updateUserUI();
+                showToast('تم تعديل التوكنات بنجاح!');
+            }
+        }
+
+        function adminSendMessage(email) {
+            const msg = prompt(`اكتب الرسالة المباشرة لتنبيه المستخدم (${email}):`);
+            if (msg) {
+                pushNotification(email, `رسالة من المطور: ${msg}`);
+                showToast('تم إرسال الرسالة التنبيهية للمستخدم!');
+            }
+        }
+
+        function adminToggleBan(email) {
+            const user = allUsersDatabase[email];
+            user.isBanned = !user.isBanned;
+            saveAllData();
+            updateAdminPanelUI();
+            showToast(user.isBanned ? 'تم حظر الحساب بنجاح' : 'تم إلغاء حظر الحساب بنجاح');
+        }
+
+        function adminDeleteUser(email) {
+            if (confirm(`هل أنت تأكد من مسح حساب (${email}) نهائياً من النظام؟`)) {
+                delete allUsersDatabase[email];
+                saveAllData();
+                updateAdminPanelUI();
+                showToast('تم مسح الحساب من النظام بالكامل!');
+            }
+        }
+    </script>
+</body>
+</html>
